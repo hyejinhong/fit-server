@@ -1,8 +1,9 @@
 package com.fit.invoice.config;
 
-import com.fit.invoice.domain.member.util.TokenProvider;
+import com.fit.invoice.domain.member.util.JwtAccessDeniedHandler;
+import com.fit.invoice.domain.member.util.JwtAuthenticationEntryPoint;
+import com.fit.invoice.domain.member.util.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.filters.CorsFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,19 +13,36 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final TokenProvider tokenProvider;
+    private final JwtProvider jwtProvider;
+    private final CorsFilter corsFilter;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                // CSRF Disabled
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
+
+                // Filter
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // Exception Handling
+                .exceptionHandling(configure -> {
+                    configure.authenticationEntryPoint(authenticationEntryPoint);
+                    configure.accessDeniedHandler(accessDeniedHandler);
+                })
+
+                // Session Stateless
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // 경로별 인가
@@ -33,7 +51,9 @@ public class SecurityConfig {
                             .requestMatchers("/admin").hasRole("ADMIN")
                             .anyRequest().authenticated();
                 })
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Jwt Filter
+//                .apply(new JwtSecurityConfig(jwtProvider))
                 .build();
     }
 
