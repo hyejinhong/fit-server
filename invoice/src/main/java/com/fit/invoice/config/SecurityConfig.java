@@ -1,11 +1,13 @@
 package com.fit.invoice.config;
 
+import com.fit.invoice.domain.member.filter.JwtFilter;
 import com.fit.invoice.domain.member.util.JwtAccessDeniedHandler;
 import com.fit.invoice.domain.member.util.JwtAuthenticationEntryPoint;
 import com.fit.invoice.domain.member.util.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,6 +30,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .httpBasic(AbstractHttpConfigurer::disable)
+
                 // CSRF Disabled
                 .csrf(AbstractHttpConfigurer::disable)
 
@@ -46,14 +50,14 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // 경로별 인가
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/login", "/", "/join").permitAll()
-                            .requestMatchers("/admin").hasRole("ADMIN")
-                            .anyRequest().authenticated();
+                .authorizeHttpRequests(requests -> { requests
+                        .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
+                        .anyRequest().authenticated();
                 })
 
-                // Jwt Filter
-//                .apply(new JwtSecurityConfig(jwtProvider))
+//                .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -4,6 +4,7 @@ import com.fit.invoice.domain.member.dto.SignupDto;
 import com.fit.invoice.domain.member.entity.Member;
 import com.fit.invoice.domain.member.exception.MemberException;
 import com.fit.invoice.domain.member.exception.MemberExceptionType;
+import com.fit.invoice.domain.member.model.Authority;
 import com.fit.invoice.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,9 +25,13 @@ public class MemberService {
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw new MemberException(MemberExceptionType.DUPLICATE_EMAIL);
         }
+
         Member member = Member.builder()
                 .email(request.getEmail())
                 .password(encoder.encode(request.getPassword()))
+                .authority(Authority.ROLE_USER)
                 .build();
+
+        memberRepository.save(member);
     }
 }
