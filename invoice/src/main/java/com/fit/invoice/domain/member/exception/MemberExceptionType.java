@@ -4,7 +4,8 @@ import com.fit.invoice.global.exception.BaseExceptionType;
 import org.springframework.http.HttpStatus;
 
 public enum MemberExceptionType implements BaseExceptionType {
-    DUPLICATE_EMAIL("1", HttpStatus.BAD_REQUEST, "이미 존재하는 이메일입니다."),
+    INTERNAL_ERROR("1", HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),
+    DUPLICATE_EMAIL("2", HttpStatus.BAD_REQUEST, "이미 존재하는 이메일입니다."),
     ;
 
     private String errorCode;

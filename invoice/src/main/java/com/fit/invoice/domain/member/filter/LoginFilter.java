@@ -1,11 +1,14 @@
 package com.fit.invoice.domain.member.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fit.invoice.domain.member.dto.CustomUserDetails;
 import com.fit.invoice.domain.member.dto.TokenResponse;
-import com.fit.invoice.domain.member.service.CustomUserDetailsService;
+import com.fit.invoice.domain.member.exception.MemberException;
+import com.fit.invoice.domain.member.exception.MemberExceptionType;
 import com.fit.invoice.domain.member.util.JwtProvider;
 import com.fit.invoice.global.dto.BaseResponse;
+import com.fit.invoice.global.exception.BaseExceptionType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +26,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,17 +34,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         log.info("### 로그인 시도");
 
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
+        try {
+            String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+            JsonNode jsonNode = objectMapper.readTree(requestBody);
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+            String username = jsonNode.get("email").asText();
+            String password = jsonNode.get("password").asText();
 
-        return authenticationManager.authenticate(authToken);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+
+            return authenticationManager.authenticate(authToken);
+
+        } catch (IOException e) {
+            throw new MemberException(MemberExceptionType.INTERNAL_ERROR);
+        }
     }
 
     @Override
