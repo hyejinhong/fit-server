@@ -1,6 +1,6 @@
 package com.fit.invoice.domain.member.service;
 
-import com.fit.invoice.domain.member.dto.SignupDto;
+import com.fit.invoice.domain.member.dto.SignupRequest;
 import com.fit.invoice.domain.member.entity.Member;
 import com.fit.invoice.domain.member.exception.MemberException;
 import com.fit.invoice.domain.member.exception.MemberExceptionType;
@@ -20,7 +20,7 @@ public class MemberService {
     /**
      * 회원가입
      * */
-    public void signup(SignupDto request) {
+    public void signup(SignupRequest request) {
         // 중복 검증
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw new MemberException(MemberExceptionType.DUPLICATE_EMAIL);

@@ -1,6 +1,8 @@
 package com.fit.invoice.config;
 
 import com.fit.invoice.domain.member.filter.JwtFilter;
+import com.fit.invoice.domain.member.filter.LoginFilter;
+import com.fit.invoice.domain.member.service.CustomUserDetailsService;
 import com.fit.invoice.domain.member.util.JwtAccessDeniedHandler;
 import com.fit.invoice.domain.member.util.JwtAuthenticationEntryPoint;
 import com.fit.invoice.domain.member.util.JwtProvider;
@@ -8,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,6 +30,8 @@ public class SecurityConfig {
     private final CorsFilter corsFilter;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final JwtAccessDeniedHandler accessDeniedHandler;
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,13 +57,14 @@ public class SecurityConfig {
 
                 // 경로별 인가
                 .authorizeHttpRequests(requests -> { requests
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .anyRequest().authenticated();
                 })
-
-//                .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtProvider), LoginFilter.class)
                 .build();
     }
 

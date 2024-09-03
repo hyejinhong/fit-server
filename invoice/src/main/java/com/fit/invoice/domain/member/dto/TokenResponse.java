@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Getter @Setter @ToString
 @Builder
-public class TokenDto {
+public class TokenResponse {
     private String grantType;
     private String accessToken;
     private Date accessTokenExpire;
