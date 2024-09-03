@@ -4,6 +4,7 @@ import com.fit.invoice.domain.invoice.dto.CreateInvoiceRequest;
 import com.fit.invoice.domain.invoice.entity.Invoice;
 import com.fit.invoice.domain.invoice.entity.Item;
 import com.fit.invoice.domain.invoice.repository.InvoiceRepository;
+import com.fit.invoice.domain.member.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
 
     public void insertInvoice(CreateInvoiceRequest request) {
-        // InvoiceItem to Item
+        // Dto To Entity
         List<Item> items = request.getItems().stream()
                 .map(invoiceItem -> {
                     return Item.builder()

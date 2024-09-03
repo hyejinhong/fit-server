@@ -1,15 +1,16 @@
 package com.fit.invoice.domain.member.entity;
 
+import com.fit.invoice.domain.invoice.entity.Invoice;
 import com.fit.invoice.domain.member.model.Authority;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class Member {
@@ -24,4 +25,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     private Authority authority;
+
+    @OneToMany(mappedBy = "member")
+    private List<Invoice> invoices;
 }

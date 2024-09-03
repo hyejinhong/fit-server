@@ -1,9 +1,7 @@
 package com.fit.invoice.domain.invoice.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.fit.invoice.domain.member.entity.Member;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +23,11 @@ public class Invoice {
     private String id;
     private LocalDate invoiceDate; // 인보이스 발행 날짜
     private LocalDate dueDate;     // 결제 기한
+
+    // 생성 회원
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     // 거래 당사자 정보
     private String senderName;     // 발행자 이름

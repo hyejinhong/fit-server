@@ -1,6 +1,11 @@
 package com.fit.invoice.domain.member.util;
 
+import com.fit.invoice.domain.member.dto.CustomUserDetails;
 import com.fit.invoice.domain.member.dto.TokenResponse;
+import com.fit.invoice.domain.member.entity.Member;
+import com.fit.invoice.domain.member.exception.MemberException;
+import com.fit.invoice.domain.member.exception.MemberExceptionType;
+import com.fit.invoice.domain.member.repository.MemberRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -30,10 +35,12 @@ public class JwtProvider {
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;  // 7일
 
     private final Key key;
+    private final MemberRepository memberRepository;
 
-    public JwtProvider(@Value("${jwt.secret}") String secretKey) {
+    public JwtProvider(@Value("${jwt.secret}") String secretKey, MemberRepository memberRepository) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.memberRepository = memberRepository;
     }
 
     public TokenResponse generateTokenDto(Authentication authentication) {
@@ -81,11 +88,16 @@ public class JwtProvider {
                         .collect(Collectors.toList());
 
         // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        CustomUserDetails principal = getCustomUserDetails(claims.getSubject());
 
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
+    private CustomUserDetails getCustomUserDetails(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberException(MemberExceptionType.NOT_FOUND));
+        return new CustomUserDetails(member);
+    }
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
