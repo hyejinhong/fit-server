@@ -8,7 +8,6 @@ import com.fit.invoice.domain.member.exception.MemberException;
 import com.fit.invoice.domain.member.exception.MemberExceptionType;
 import com.fit.invoice.domain.member.util.JwtProvider;
 import com.fit.invoice.global.dto.BaseResponse;
-import com.fit.invoice.global.exception.BaseExceptionType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -73,7 +72,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setContentType("application/json");
 
         try (BufferedOutputStream bo = new BufferedOutputStream(response.getOutputStream())) {
-            bo.write(new ObjectMapper().writeValueAsString(baseResponse).getBytes());
+            bo.write(objectMapper.writeValueAsString(baseResponse).getBytes());
         }
         response.flushBuffer();
     }
@@ -81,6 +80,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         response.setStatus(401);
+
+        BaseResponse<String> baseResponse = new BaseResponse<>("99", "로그인에 실패했습니다. 계정을 확인하세요.", failed.getMessage());
+        response.setContentType("application/json");
+
+        try (BufferedOutputStream bo = new BufferedOutputStream(response.getOutputStream())) {
+            bo.write(objectMapper.writeValueAsString(baseResponse).getBytes());
+        }
+        response.flushBuffer();
     }
 
     @Override
