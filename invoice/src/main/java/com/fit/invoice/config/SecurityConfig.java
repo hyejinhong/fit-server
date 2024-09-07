@@ -69,6 +69,7 @@ public class SecurityConfig {
                 })
                 .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtFilter(jwtProvider), LoginFilter.class)
+
                 .build();
     }
 

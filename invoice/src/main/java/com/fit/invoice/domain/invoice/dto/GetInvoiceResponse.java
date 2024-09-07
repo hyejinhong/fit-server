@@ -1,23 +1,18 @@
-package com.fit.invoice.domain.invoice.entity;
+package com.fit.invoice.domain.invoice.dto;
 
-import com.fit.invoice.domain.member.entity.Member;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Id;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-@Getter
-@Entity
+@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Invoice {
-
+@ToString
+public class GetInvoiceResponse {
     // 기본 정보
     @Id
     private String id;
@@ -25,9 +20,8 @@ public class Invoice {
     private LocalDate dueDate;     // 결제 기한
 
     // 생성 회원
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    private Long memberId;
+    private String memberEmail;
 
     // 거래 당사자 정보
     private String senderName;     // 발행자 이름
@@ -38,8 +32,7 @@ public class Invoice {
     private String recipientContact; // 수신자 연락처
 
     // 물품 리스트
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Item> items;
+    private List<ItemDto> items;
 
     // 가격 및 세금 정보
     private BigDecimal subTotal;    // 총 가격 (세금 제외)
