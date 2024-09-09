@@ -1,5 +1,6 @@
 package com.fit.invoice.config;
 
+import com.fit.invoice.domain.mail.service.EmailService;
 import com.fit.invoice.domain.member.filter.JwtFilter;
 import com.fit.invoice.domain.member.filter.LoginFilter;
 import com.fit.invoice.domain.member.service.CustomUserDetailsService;
@@ -33,6 +34,7 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler accessDeniedHandler;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final CustomUserDetailsService customUserDetailsService;
+    private final EmailService emailService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -61,13 +63,13 @@ public class SecurityConfig {
 
                 // 경로별 인가
                 .authorizeHttpRequests(requests -> { requests
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers("/login", "/verify").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .anyRequest().authenticated();
                 })
-                .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtProvider, emailService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtFilter(jwtProvider), LoginFilter.class)
 
                 .build();
