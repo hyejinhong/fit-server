@@ -63,7 +63,7 @@ public class SecurityConfig {
 
                 // 경로별 인가
                 .authorizeHttpRequests(requests -> { requests
-                        .requestMatchers("/login", "/verify").permitAll()
+                        .requestMatchers("/login", "/api/v1/verify").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
