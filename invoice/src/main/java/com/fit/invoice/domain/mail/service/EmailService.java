@@ -42,12 +42,12 @@ public class EmailService {
         simpleMailMessage.setText("This is Your Authentication Code : " + authenticateCode);
 
         try {
-            mailSender.send(simpleMailMessage);
-
             // 캐시서버에 저장
             AuthenticateCode authCode = AuthenticateCode.builder()
                             .email(email).authCode(authenticateCode).build();
             authCodeRepository.save(authCode);
+
+            mailSender.send(simpleMailMessage);
         } catch (Exception e) {
             log.error("", e);
             throw e;
