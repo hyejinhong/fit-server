@@ -5,7 +5,9 @@ import com.fit.invoice.domain.mail.entity.AuthenticateCode;
 import com.fit.invoice.domain.mail.exception.MailException;
 import com.fit.invoice.domain.mail.exception.MailExceptionType;
 import com.fit.invoice.domain.mail.repository.AuthCodeRedisRepository;
+import com.fit.invoice.domain.member.dto.CustomUserDetails;
 import com.fit.invoice.domain.member.dto.TokenResponse;
+import com.fit.invoice.domain.member.service.CustomUserDetailsService;
 import com.fit.invoice.domain.member.util.JwtProvider;
 import com.fit.invoice.domain.member.util.SecurityUtil;
 import com.fit.invoice.global.dto.BaseResponse;
@@ -14,7 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,7 +32,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final AuthCodeRedisRepository authCodeRepository;
     private final JwtProvider jwtProvider;
-    private final SecurityUtil securityUtil;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Value("${spring.mail.username}")
     private String sender;
@@ -79,7 +83,10 @@ public class EmailService {
         }
 
         // 토큰 발급
-        Authentication authentication = SecurityUtil.getAuthentication();
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtProvider.generateTokenDto(authentication);
     }
 

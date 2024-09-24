@@ -1,6 +1,7 @@
 package com.fit.invoice.domain.invoice.service;
 
 import com.fit.invoice.domain.invoice.dto.CreateInvoiceRequest;
+import com.fit.invoice.domain.invoice.dto.GetInvoiceListResponse;
 import com.fit.invoice.domain.invoice.dto.GetInvoiceResponse;
 import com.fit.invoice.domain.invoice.dto.ItemDto;
 import com.fit.invoice.domain.invoice.entity.Invoice;
@@ -8,6 +9,7 @@ import com.fit.invoice.domain.invoice.entity.Item;
 import com.fit.invoice.domain.invoice.exception.InvoiceException;
 import com.fit.invoice.domain.invoice.exception.InvoiceExceptionType;
 import com.fit.invoice.domain.invoice.repository.InvoiceRepository;
+import com.fit.invoice.domain.member.entity.Member;
 import com.fit.invoice.domain.member.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -109,6 +111,55 @@ public class InvoiceService {
                 .bankDetails(invoice.getBankDetails())
                 .paymentStatus(invoice.getPaymentStatus())
                 .referenceNumber(invoice.getReferenceNumber())
+                .build();
+    }
+
+    /**
+     * Member 가 발행한 인보이스 리스트 반환
+     * */
+    public GetInvoiceListResponse selectInvoiceList(Member member) {
+        List<GetInvoiceResponse> invoices = invoiceRepository.findByMemberId(member.getId())
+                .stream().map(invoice -> {
+                    List<ItemDto> items = invoice.getItems().stream()
+                            .map(invoiceItem -> {
+                                return ItemDto.builder()
+                                        .itemName(invoiceItem.getItemName())
+                                        .itemDescription(invoiceItem.getItemDescription())
+                                        .quantity(invoiceItem.getQuantity())
+                                        .unitPrice(invoiceItem.getUnitPrice())
+                                        .totalPrice(invoiceItem.getTotalPrice())
+                                        .build();
+                            }).toList();
+
+                    return GetInvoiceResponse.builder()
+                            .id(invoice.getId())
+                            .invoiceDate(invoice.getInvoiceDate())
+                            .dueDate(invoice.getDueDate())
+                            .memberId(invoice.getMember().getId())
+                            .memberEmail(invoice.getMember().getEmail())
+                            .senderName(invoice.getSenderName())
+                            .senderAddress(invoice.getSenderAddress())
+                            .senderContact(invoice.getSenderContact())
+                            .recipientName(invoice.getRecipientName())
+                            .recipientAddress(invoice.getRecipientAddress())
+                            .recipientContact(invoice.getRecipientContact())
+                            .items(items)
+                            .subTotal(invoice.getSubTotal())
+                            .taxRate(invoice.getTaxRate())
+                            .taxAmount(invoice.getTaxAmount())
+                            .discount(invoice.getDiscount())
+                            .totalAmount(invoice.getTotalAmount())
+                            .paymentTerms(invoice.getPaymentTerms())
+                            .paymentMethod(invoice.getPaymentMethod())
+                            .bankDetails(invoice.getBankDetails())
+                            .paymentStatus(invoice.getPaymentStatus())
+                            .referenceNumber(invoice.getReferenceNumber())
+                            .build();
+                }).toList();
+
+        return GetInvoiceListResponse.builder()
+                .invoices(invoices)
+                .totalItems(invoices.size())
                 .build();
     }
 }
