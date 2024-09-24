@@ -5,12 +5,16 @@ import com.fit.invoice.domain.mail.entity.AuthenticateCode;
 import com.fit.invoice.domain.mail.exception.MailException;
 import com.fit.invoice.domain.mail.exception.MailExceptionType;
 import com.fit.invoice.domain.mail.repository.AuthCodeRedisRepository;
+import com.fit.invoice.domain.member.dto.TokenResponse;
+import com.fit.invoice.domain.member.util.JwtProvider;
+import com.fit.invoice.domain.member.util.SecurityUtil;
 import com.fit.invoice.global.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -23,6 +27,8 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
     private final AuthCodeRedisRepository authCodeRepository;
+    private final JwtProvider jwtProvider;
+    private final SecurityUtil securityUtil;
 
     @Value("${spring.mail.username}")
     private String sender;
@@ -43,8 +49,10 @@ public class EmailService {
 
         try {
             // 캐시서버에 저장
-            AuthenticateCode authCode = AuthenticateCode.builder()
-                            .email(email).authCode(authenticateCode).build();
+            AuthenticateCode authCode = AuthenticateCode
+                    .builder()
+                    .email(email)
+                    .authCode(authenticateCode).build();
             authCodeRepository.save(authCode);
 
             mailSender.send(simpleMailMessage);
@@ -56,7 +64,7 @@ public class EmailService {
         return new BaseResponse<>("00", "메일 전송 완료", null);
     }
 
-    public void verifyAuthCode(VerifyAuthCodeRequest request) {
+    public TokenResponse verifyAuthCode(VerifyAuthCodeRequest request) {
         // 캐시에서 확인
         // 캐시에 없음
         Optional<AuthenticateCode> authCodeOptional = authCodeRepository.findById(request.getEmail());
@@ -69,6 +77,10 @@ public class EmailService {
         if (!request.getAuthCode().equals(authenticateCode.getAuthCode())) {
             throw new MailException(MailExceptionType.WRONG_AUTH_CODE);
         }
+
+        // 토큰 발급
+        Authentication authentication = SecurityUtil.getAuthentication();
+        return jwtProvider.generateTokenDto(authentication);
     }
 
     private String generateAuthenticateCode() {

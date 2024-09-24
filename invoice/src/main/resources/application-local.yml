@@ -13,7 +13,16 @@ spring:
     username: root
     password: masterkey
 
+  redis:
+    host: localhost
+    port: 6379
+    password: masterkey
+
 cors-allowed: http://localhost:3000
 
 jwt:
   secret: 7bHKu0z1BnfLeiB0++gLOSAo90G7hP+vrLWoBEwRTFEwaaPxD9qSKJ4xIoBxI4AjK2sY6wzerhCQt8b0hvWmAQ==
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace

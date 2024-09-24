@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fit.invoice.domain.mail.service.EmailService;
 import com.fit.invoice.domain.member.dto.CustomUserDetails;
-import com.fit.invoice.domain.member.dto.TokenResponse;
 import com.fit.invoice.domain.member.exception.MemberException;
 import com.fit.invoice.domain.member.exception.MemberExceptionType;
 import com.fit.invoice.domain.member.util.JwtProvider;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final EmailService emailService;
 
@@ -72,14 +70,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 메일 전송
         emailService.sendMail(username);
 
-        // 토큰 발급
-        TokenResponse token = jwtProvider.generateTokenDto(authResult);
-        BaseResponse<TokenResponse> baseResponse = new BaseResponse<>("00", "로그인 성공", token);
-        response.setContentType("application/json");
-
+        BaseResponse<Void> baseResponse = new BaseResponse<>("00", "메일로 발송된 인증코드를 확인하세요.", null);
         try (BufferedOutputStream bo = new BufferedOutputStream(response.getOutputStream())) {
             bo.write(objectMapper.writeValueAsString(baseResponse).getBytes());
         }
+        response.setContentType("application/json");
         response.flushBuffer();
     }
 

@@ -14,6 +14,6 @@ public class BaseResponse<T> {
     private T data;
 
     public static <T> BaseResponse<T> ok(String message, T data) {
-        return new BaseResponse<T>("0", message, data);
+        return new BaseResponse<T>("00", message, data);
     }
 }

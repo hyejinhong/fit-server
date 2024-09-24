@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .anyRequest().authenticated();
                 })
-                .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtProvider, emailService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), emailService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtFilter(jwtProvider), LoginFilter.class)
 
                 .build();
