@@ -162,4 +162,56 @@ public class InvoiceService {
                 .totalItems(invoices.size())
                 .build();
     }
+
+    /**
+     * 수신인 명으로 인보이스 리스트 검색
+     * @param recipient
+     * @return
+     */
+    public GetInvoiceListResponse selectInvoicesByRecipient(String recipient) {
+        List<GetInvoiceResponse> invoices = invoiceRepository.findByRecipientName(recipient)
+                .stream().map(invoice -> {
+                    List<ItemDto> items = invoice.getItems().stream()
+                            .map(invoiceItem -> {
+                                return ItemDto.builder()
+                                        .itemName(invoiceItem.getItemName())
+                                        .itemDescription(invoiceItem.getItemDescription())
+                                        .quantity(invoiceItem.getQuantity())
+                                        .unitPrice(invoiceItem.getUnitPrice())
+                                        .totalPrice(invoiceItem.getTotalPrice())
+                                        .build();
+                            }).toList();
+
+                    return GetInvoiceResponse.builder()
+                            .id(invoice.getId())
+                            .invoiceDate(invoice.getInvoiceDate())
+                            .dueDate(invoice.getDueDate())
+                            .memberId(invoice.getMember().getId())
+                            .memberEmail(invoice.getMember().getEmail())
+                            .senderName(invoice.getSenderName())
+                            .senderAddress(invoice.getSenderAddress())
+                            .senderContact(invoice.getSenderContact())
+                            .recipientName(invoice.getRecipientName())
+                            .recipientAddress(invoice.getRecipientAddress())
+                            .recipientContact(invoice.getRecipientContact())
+                            .items(items)
+                            .subTotal(invoice.getSubTotal())
+                            .taxRate(invoice.getTaxRate())
+                            .taxAmount(invoice.getTaxAmount())
+                            .discount(invoice.getDiscount())
+                            .totalAmount(invoice.getTotalAmount())
+                            .paymentTerms(invoice.getPaymentTerms())
+                            .paymentMethod(invoice.getPaymentMethod())
+                            .bankDetails(invoice.getBankDetails())
+                            .paymentStatus(invoice.getPaymentStatus())
+                            .referenceNumber(invoice.getReferenceNumber())
+                            .build();
+                }).toList();
+
+        return GetInvoiceListResponse.builder()
+                .invoices(invoices)
+                .totalItems(invoices.size())
+                .build();
+
+    }
 }

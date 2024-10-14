@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, String> {
     List<Invoice> findByMemberId(Long memberId);
+    List<Invoice> findByRecipientName(String recipientName);
 }

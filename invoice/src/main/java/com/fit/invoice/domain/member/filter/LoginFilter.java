@@ -71,10 +71,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         emailService.sendMail(username);
 
         BaseResponse<Void> baseResponse = new BaseResponse<>("00", "메일로 발송된 인증코드를 확인하세요.", null);
+        response.setContentType("application/json");
+
         try (BufferedOutputStream bo = new BufferedOutputStream(response.getOutputStream())) {
             bo.write(objectMapper.writeValueAsString(baseResponse).getBytes());
         }
-        response.setContentType("application/json");
         response.flushBuffer();
     }
 
