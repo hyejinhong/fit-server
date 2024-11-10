@@ -9,7 +9,6 @@ import com.fit.invoice.domain.member.dto.CustomUserDetails;
 import com.fit.invoice.domain.member.dto.TokenResponse;
 import com.fit.invoice.domain.member.service.CustomUserDetailsService;
 import com.fit.invoice.domain.member.util.JwtProvider;
-import com.fit.invoice.domain.member.util.SecurityUtil;
 import com.fit.invoice.global.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -95,5 +94,15 @@ public class EmailService {
         StringBuilder code = new StringBuilder();
 
         return String.valueOf(random.nextInt(1000000));
+    }
+
+    // TODO 데모용
+    public TokenResponse verifyAuthCodeForDemo(VerifyAuthCodeRequest request) {
+        // 토큰 발급
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return jwtProvider.generateTokenDto(authentication);
     }
 }
