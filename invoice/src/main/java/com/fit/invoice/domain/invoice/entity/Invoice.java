@@ -33,9 +33,11 @@ public class Invoice {
     private String senderName;     // 발행자 이름
     private String senderAddress;  // 발행자 주소
     private String senderContact;  // 발행자 연락처
+    private String senderEmail; // 발행자 이메일
     private String recipientName;  // 수신자 이름
     private String recipientAddress; // 수신자 주소
     private String recipientContact; // 수신자 연락처
+    private String recipientEmail; // 수신자 이메일
 
     // 물품 리스트
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)

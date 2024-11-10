@@ -23,9 +23,11 @@ public class CreateInvoiceRequest {
     private String senderName;     // 발행자 이름
     private String senderAddress;  // 발행자 주소
     private String senderContact;  // 발행자 연락처
+    private String senderEmail; // 발행자 이메일
     private String recipientName;  // 수신자 이름
     private String recipientAddress; // 수신자 주소
     private String recipientContact; // 수신자 연락처
+    private String recipientEmail; // 수신자 이메일
 
     // 상품 및 서비스 정보
     private List<InvoiceItem> items; // 상품 또는 서비스 목록
