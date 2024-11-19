@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/api/v1/verify").permitAll()
                         .requestMatchers("/api/v1/invoices/{invoiceId}").permitAll() // DEMO용 임시 추가
                         .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
+                        .requestMatchers("/api/v1/members/status").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .anyRequest().authenticated();

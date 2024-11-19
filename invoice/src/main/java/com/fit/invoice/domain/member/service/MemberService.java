@@ -1,5 +1,6 @@
 package com.fit.invoice.domain.member.service;
 
+import com.fit.invoice.domain.member.dto.MemberStatusResponse;
 import com.fit.invoice.domain.member.dto.SignupRequest;
 import com.fit.invoice.domain.member.entity.Member;
 import com.fit.invoice.domain.member.exception.MemberException;
@@ -9,6 +10,8 @@ import com.fit.invoice.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +36,13 @@ public class MemberService {
                 .build();
 
         memberRepository.save(member);
+    }
+
+    /**
+     * 회원 상태 조회
+     * @return
+     */
+    public MemberStatusResponse getMemberStatus(String email) {
+        return MemberStatusResponse.builder().isMember(memberRepository.existsByEmail(email)).build();
     }
 }
