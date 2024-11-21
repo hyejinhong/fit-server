@@ -214,4 +214,9 @@ public class InvoiceService {
                 .build();
 
     }
+
+    public void delete(String invoiceId) {
+        invoiceRepository.delete(invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new InvoiceException(InvoiceExceptionType.NOT_FOUND)));
+    }
 }

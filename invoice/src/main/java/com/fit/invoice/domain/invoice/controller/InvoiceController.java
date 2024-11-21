@@ -43,4 +43,10 @@ public class InvoiceController {
     public BaseResponse<GetInvoiceListResponse> getInvoiceByRecipient(@RequestParam(required = true) String recipient) {
         return BaseResponse.ok("수신인으로 조회 완료", invoiceService.selectInvoicesByRecipient(recipient));
     }
+
+    @DeleteMapping("/{invoiceId}")
+    public BaseResponse<Void> deleteInvoice(@PathVariable String invoiceId) {
+        invoiceService.delete(invoiceId);
+        return BaseResponse.ok("삭제했습니다.", null);
+    }
 }
