@@ -25,32 +25,24 @@ public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
 
-    public void insertInvoice(CreateInvoiceRequest request) {
-        // Dto To Entity
-        List<Item> items = request.getItems().stream()
-                .map(invoiceItem -> {
-                    return Item.builder()
-                            .itemName(invoiceItem.getItemName())
-                            .itemDescription(invoiceItem.getItemDescription())
-                            .quantity(invoiceItem.getQuantity())
-                            .unitPrice(invoiceItem.getUnitPrice())
-                            .totalPrice(invoiceItem.getTotalPrice())
-                            .build();
-                }).toList();
+    public String insertInvoice(CreateInvoiceRequest request) {
+        String uuid = UUID.randomUUID().toString();
 
         // CreateInvoiceRequest to Invoice
         Invoice invoice = Invoice.builder()
-                .id(UUID.randomUUID().toString())
+                .id(uuid)
                 .invoiceDate(request.getInvoiceDate())
                 .dueDate(request.getDueDate())
                 .senderName(request.getSenderName())
                 .senderAddress(request.getSenderAddress())
                 .senderContact(request.getSenderContact())
+                .senderEmail(request.getSenderEmail())
                 .recipientName(request.getRecipientName())
                 .recipientAddress(request.getRecipientAddress())
                 .recipientContact(request.getRecipientContact())
+                .recipientEmail(request.getRecipientEmail())
                 .member(SecurityUtil.getCurrentMember().getMember())
-                .items(items)
+                .items(new ArrayList<>())
                 .subTotal(request.getSubTotal())
                 .taxRate(request.getTaxRate())
                 .taxAmount(request.getTaxAmount())
@@ -66,7 +58,22 @@ public class InvoiceService {
                 .referenceNumber(request.getReferenceNumber())
                 .build();
 
+        // Dto To Entity
+        List<Item> items = request.getItems().stream()
+                .map(invoiceItem -> {
+                    return Item.builder()
+                            .itemName(invoiceItem.getItemName())
+                            .itemDescription(invoiceItem.getItemDescription())
+                            .quantity(invoiceItem.getQuantity())
+                            .unitPrice(invoiceItem.getUnitPrice())
+                            .totalPrice(invoiceItem.getTotalPrice())
+                            .invoice(invoice)
+                            .build();
+                }).toList();
+
+        invoice.getItems().addAll(items);
         invoiceRepository.save(invoice);
+        return uuid;
     }
 
     public GetInvoiceResponse selectInvoice(String invoiceId) {
@@ -80,11 +87,13 @@ public class InvoiceService {
         List<ItemDto> items = invoice.getItems().stream()
                 .map(invoiceItem -> {
                     return ItemDto.builder()
+                            .id(invoiceItem.getId())
                             .itemName(invoiceItem.getItemName())
                             .itemDescription(invoiceItem.getItemDescription())
                             .quantity(invoiceItem.getQuantity())
                             .unitPrice(invoiceItem.getUnitPrice())
                             .totalPrice(invoiceItem.getTotalPrice())
+                            .invoiceId(invoiceItem.getInvoice().getId())
                             .build();
                 }).toList();
 
@@ -97,9 +106,11 @@ public class InvoiceService {
                 .senderName(invoice.getSenderName())
                 .senderAddress(invoice.getSenderAddress())
                 .senderContact(invoice.getSenderContact())
+                .senderEmail(invoice.getSenderEmail())
                 .recipientName(invoice.getRecipientName())
                 .recipientAddress(invoice.getRecipientAddress())
                 .recipientContact(invoice.getRecipientContact())
+                .recipientEmail(invoice.getRecipientEmail())
                 .items(items)
                 .subTotal(invoice.getSubTotal())
                 .taxRate(invoice.getTaxRate())
@@ -111,6 +122,9 @@ public class InvoiceService {
                 .bankDetails(invoice.getBankDetails())
                 .paymentStatus(invoice.getPaymentStatus())
                 .referenceNumber(invoice.getReferenceNumber())
+                .termsAndConditions(invoice.getTermsAndConditions())
+                .notes(invoice.getNotes())
+                .currency(invoice.getCurrency())
                 .build();
     }
 
@@ -123,11 +137,13 @@ public class InvoiceService {
                     List<ItemDto> items = invoice.getItems().stream()
                             .map(invoiceItem -> {
                                 return ItemDto.builder()
+                                        .id(invoiceItem.getId())
                                         .itemName(invoiceItem.getItemName())
                                         .itemDescription(invoiceItem.getItemDescription())
                                         .quantity(invoiceItem.getQuantity())
                                         .unitPrice(invoiceItem.getUnitPrice())
                                         .totalPrice(invoiceItem.getTotalPrice())
+                                        .invoiceId(invoiceItem.getInvoice().getId())
                                         .build();
                             }).toList();
 
@@ -140,9 +156,11 @@ public class InvoiceService {
                             .senderName(invoice.getSenderName())
                             .senderAddress(invoice.getSenderAddress())
                             .senderContact(invoice.getSenderContact())
+                            .senderEmail(invoice.getSenderEmail())
                             .recipientName(invoice.getRecipientName())
                             .recipientAddress(invoice.getRecipientAddress())
                             .recipientContact(invoice.getRecipientContact())
+                            .recipientEmail(invoice.getRecipientEmail())
                             .items(items)
                             .subTotal(invoice.getSubTotal())
                             .taxRate(invoice.getTaxRate())
@@ -154,6 +172,9 @@ public class InvoiceService {
                             .bankDetails(invoice.getBankDetails())
                             .paymentStatus(invoice.getPaymentStatus())
                             .referenceNumber(invoice.getReferenceNumber())
+                            .termsAndConditions(invoice.getTermsAndConditions())
+                            .notes(invoice.getNotes())
+                            .currency(invoice.getCurrency())
                             .build();
                 }).toList();
 
@@ -174,11 +195,13 @@ public class InvoiceService {
                     List<ItemDto> items = invoice.getItems().stream()
                             .map(invoiceItem -> {
                                 return ItemDto.builder()
+                                        .id(invoiceItem.getId())
                                         .itemName(invoiceItem.getItemName())
                                         .itemDescription(invoiceItem.getItemDescription())
                                         .quantity(invoiceItem.getQuantity())
                                         .unitPrice(invoiceItem.getUnitPrice())
                                         .totalPrice(invoiceItem.getTotalPrice())
+                                        .invoiceId(invoiceItem.getInvoice().getId())
                                         .build();
                             }).toList();
 
@@ -191,9 +214,11 @@ public class InvoiceService {
                             .senderName(invoice.getSenderName())
                             .senderAddress(invoice.getSenderAddress())
                             .senderContact(invoice.getSenderContact())
+                            .senderEmail(invoice.getSenderEmail())
                             .recipientName(invoice.getRecipientName())
                             .recipientAddress(invoice.getRecipientAddress())
                             .recipientContact(invoice.getRecipientContact())
+                            .recipientEmail(invoice.getRecipientEmail())
                             .items(items)
                             .subTotal(invoice.getSubTotal())
                             .taxRate(invoice.getTaxRate())
@@ -205,6 +230,9 @@ public class InvoiceService {
                             .bankDetails(invoice.getBankDetails())
                             .paymentStatus(invoice.getPaymentStatus())
                             .referenceNumber(invoice.getReferenceNumber())
+                            .termsAndConditions(invoice.getTermsAndConditions())
+                            .notes(invoice.getNotes())
+                            .currency(invoice.getCurrency())
                             .build();
                 }).toList();
 
@@ -212,7 +240,6 @@ public class InvoiceService {
                 .invoices(invoices)
                 .totalItems(invoices.size())
                 .build();
-
     }
 
     public void delete(String invoiceId) {

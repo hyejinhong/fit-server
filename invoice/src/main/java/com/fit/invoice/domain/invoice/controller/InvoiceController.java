@@ -22,10 +22,9 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @PostMapping
-    public BaseResponse<Void> createInvoice(@RequestBody CreateInvoiceRequest request) {
+    public BaseResponse<String> createInvoice(@RequestBody CreateInvoiceRequest request) {
       log.info("### 인보이스 생성 요청 : {}", request.toString());
-      invoiceService.insertInvoice(request);
-      return BaseResponse.ok("인보이스를 생성했습니다.", null);
+      return BaseResponse.ok("인보이스를 생성했습니다.", invoiceService.insertInvoice(request));
     }
 
     @GetMapping("/{invoiceId}")
